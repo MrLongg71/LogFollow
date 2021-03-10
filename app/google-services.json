@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "260279848376",
+    "project_id": "logfollow-d9aac",
+    "storage_bucket": "logfollow-d9aac.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:260279848376:android:4c0deb95e09d326aef934d",
+        "android_client_info": {
+          "package_name": "vn.mrlongg71.service"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "260279848376-qj3iuvtoh2ha6gvkkcurj2tpubi5860k.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDUlOWeVX5kk37XveFicp88Xd3uknKtIy0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "260279848376-qj3iuvtoh2ha6gvkkcurj2tpubi5860k.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
