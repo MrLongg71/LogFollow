@@ -1,4 +1,4 @@
-package vn.mrlongg71.service.helper;
+package vn.mrlongg71.service.core.helper;
 
 import android.os.Build;
 import android.text.TextUtils;

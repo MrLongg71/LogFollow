@@ -10,8 +10,8 @@ import androidx.room.RoomDatabase;
 import androidx.room.migration.Migration;
 import androidx.sqlite.db.SupportSQLiteDatabase;
 
-import vn.mrlongg71.service.model.room.LogFollow;
-import vn.mrlongg71.service.model.room.dao.LogDao;
+import vn.mrlongg71.service.model.dao.LogDao;
+import vn.mrlongg71.service.model.database.LogFollow;
 
 @Database(version = 3, entities = {LogFollow.class})
 public abstract class AppDatabase extends RoomDatabase {

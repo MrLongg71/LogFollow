@@ -1,7 +1,6 @@
 package vn.mrlongg71.service;
 
 import android.Manifest;
-import android.annotation.SuppressLint;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -13,8 +12,6 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Build;
-import android.os.Bundle;
-import android.os.Handler;
 import android.os.IBinder;
 import android.util.Log;
 
@@ -24,34 +21,24 @@ import androidx.annotation.RequiresApi;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
 
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
-
 import vn.mrlongg71.service.core.AppDatabase;
-import vn.mrlongg71.service.model.room.LogFollow;
+import vn.mrlongg71.service.core.helper.DateHelper;
+import vn.mrlongg71.service.model.database.LogFollow;
 import vn.mrlongg71.service.notify.AlarmUtils;
 import vn.mrlongg71.service.service.Restart;
 
-import static android.content.ContentValues.TAG;
 import static androidx.core.app.NotificationCompat.PRIORITY_MIN;
 
 public class LocationService extends Service implements LocationListener {
-    private Handler handler;
     private LocationManager locationManager;
     AppDatabase appDatabase;
-    private Date date;
 
     @Override
     public void onCreate() {
         super.onCreate();
-        handler = new Handler();
-        date = new Date();
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         appDatabase = AppDatabase.getInstance(this);
         AlarmUtils.create(getBaseContext());
-
-
         startForeground(110, pushNotify());
     }
 
@@ -59,38 +46,11 @@ public class LocationService extends Service implements LocationListener {
     public int onStartCommand(Intent intent, int flags, int startId) {
 
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
             return START_STICKY;
         }
-        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this::onLocationChanged);
+        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 10, 10, this);
 
-        handler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
 
-                try {
-                    if (ActivityCompat.checkSelfPermission(getBaseContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getBaseContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                        // TODO: Consider calling
-                        //    ActivityCompat#requestPermissions
-                        // here to request the missing permissions, and then overriding
-                        //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-                        //                                          int[] grantResults)
-                        // to handle the case where the user grants the permission. See the documentation
-                        // for ActivityCompat#requestPermissions for more details.
-                        return;
-                    }
-                } catch (Exception e) {
-                    Log.d("eSalesLog", "run: " + e.getMessage());
-                }
-                handler.postDelayed(this, 5000);
-            }
-        }, 5000);
         return START_STICKY;
     }
 
@@ -140,13 +100,11 @@ public class LocationService extends Service implements LocationListener {
 
     @Override
     public void onLocationChanged(@NonNull Location location) {
-        @SuppressLint("SimpleDateFormat") SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd_HHmmss");
-
-        android.util.Log.d("dsd", "run: " + location.getLatitude());
+        Log.d("Mrlongg71", "onLocationChanged: ");
         LogFollow logFollow = new LogFollow();
         logFollow.setLat(location.getLatitude());
-        logFollow.setLng(location.getLatitude());
-        logFollow.setCreateAt(format.format(Calendar.getInstance().getTime()));
+        logFollow.setLng(location.getLongitude());
+        logFollow.setCreateAt(DateHelper.getString(null));
         appDatabase.getLogDao().insertLog(logFollow);
     }
 }

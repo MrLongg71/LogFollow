@@ -53,6 +53,8 @@ dependencies {
     implementation "androidx.room:room-rxjava2:$room_version"
 
     implementation ('com.google.firebase:firebase-bom:26.6.0')
+
+//    implementation 'com.thoughtbot:expandablerecyclerview:1.4'
 }
 
 apply plugin: 'com.google.gms.google-services'
