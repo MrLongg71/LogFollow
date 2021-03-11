@@ -5,17 +5,17 @@ import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
 @Entity(tableName = "log")
-public class Log {
+public class LogFollow {
     @PrimaryKey(autoGenerate = true)
-    public int id;
+    private int id;
     @ColumnInfo(name = "address")
-    public String address;
+    private String address;
     @ColumnInfo(name = "createAt")
-    public String createAt;
+    private String createAt;
     @ColumnInfo(name = "lat")
-    public double lat;
+    private double lat;
     @ColumnInfo(name = "lng")
-    public double lng;
+    private double lng;
 
 
     public int getId() {

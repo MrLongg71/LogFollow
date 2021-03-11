@@ -1,82 +1,77 @@
 package vn.mrlongg71.service;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
-import android.app.Notification;
-import android.app.NotificationChannel;
-import android.app.NotificationManager;
-import android.app.TaskStackBuilder;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.media.AudioAttributes;
-import android.os.Build;
+import android.content.pm.PackageManager;
+import android.location.Address;
+import android.location.Geocoder;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.Toast;
 
-import androidx.annotation.RequiresApi;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.NotificationCompat;
+import androidx.core.app.ActivityCompat;
 
-import vn.mrlongg71.service.notify.AlarmUtils;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
+
+import vn.mrlongg71.service.core.AppDatabase;
+import vn.mrlongg71.service.helper.Helper;
+import vn.mrlongg71.service.model.room.LogFollow;
 import vn.mrlongg71.service.service.Restart;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements LocationListener {
 
     @SuppressLint("CheckResult")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        createNotificationChannel();
-        AlarmUtils.create(getBaseContext());
-        //Intent intent = new Intent(this, AlertDetails.class);
-        //intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        //PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, 0);
+        checkPermission();
+        LocationManager locationManager = (LocationManager)
+                getSystemService(Context.LOCATION_SERVICE);
 
-        findViewById(R.id.btn).setOnClickListener(new View.OnClickListener() {
-            @RequiresApi(api = Build.VERSION_CODES.O)
-            @Override
-            public void onClick(View v) {
-                // mBuilder.build();
-                showNotification(MainActivity.this, "dsds", "sds");
-                Intent intent = new Intent(MainActivity.this, LocationService.class);
-                startService(intent);
-            }
-        });
-
-
-//        Geocoder geocoder = new Geocoder(this, Locale.getDefault());
-//
-//        List<Address> addresses = null;
-//
-//        AppDatabase appDatabase = AppDatabase.getInstance(this);
-//        List<Log> logList = appDatabase.getLogDao().getListLog();
-//        for (Log log : logList) {
-//            if(log.id != 1){
-//                try {
-//                    addresses = geocoder.getFromLocation(log.lat, log.lng, 1);
-//                } catch (IOException e) {
-//                    e.printStackTrace();
-//                }
-//                if (addresses != null && addresses.size() > 0) {
-//                    log.setAddress(addresses.get(0).getAddressLine(0));
-//                }
-//            }
-//        }
-
-
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return;
+        }
+        locationManager.requestLocationUpdates(
+                LocationManager.GPS_PROVIDER, 0, 0, this);
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
-    private String getNotificationChannel(NotificationManager notificationManager, Context context) {
-        String channelId = "channelid";
-        String channelName = context.getResources().getString(R.string.app_name);
-        NotificationChannel channel = new NotificationChannel(channelId, channelName, NotificationManager.IMPORTANCE_HIGH);
-        channel.setImportance(NotificationManager.IMPORTANCE_NONE);
-        channel.setLockscreenVisibility(Notification.VISIBILITY_PRIVATE);
-        notificationManager.createNotificationChannel(channel);
-        return channelId;
+    private void checkPermission() {
+        int checkPermissionCOARSE = ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION);
+        int checkPermissionFINE = ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION);
+        int checkPermissionREAD = ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_SMS);
+
+        if (checkPermissionCOARSE != PackageManager.PERMISSION_GRANTED &&
+                checkPermissionFINE != PackageManager.PERMISSION_GRANTED && checkPermissionREAD != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION}, 101);
+        } else {
+            startService();
+
+        }
     }
 
     @Override
@@ -84,73 +79,83 @@ public class MainActivity extends AppCompatActivity {
         Log.d("sd", "onDestroyView: ");
         Intent broadcastIntent = new Intent();
         broadcastIntent.setAction("restartservice");
-        broadcastIntent.setComponent(new ComponentName("com.miui.securitycenter", "com.miui.permcenter.autostart.AutoStartManagementActivity"));
-
         broadcastIntent.setClass(this, Restart.class);
         this.sendBroadcast(broadcastIntent);
-
-
         super.onDestroy();
     }
 
-    private void createNotificationChannel() {
-        // Create the NotificationChannel, but only on API 26+ because
-        // the NotificationChannel class is new and not in the support library
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            CharSequence name = ("channel_name");
-            String description = ("channel_description");
-            int importance = NotificationManager.IMPORTANCE_DEFAULT;
-            NotificationChannel channel = new NotificationChannel("32", name, importance);
-            channel.setDescription(description);
-            // Register the channel with the system; you can't change the importance
-            // or other notification behaviors after this
-            NotificationManager notificationManager = getSystemService(NotificationManager.class);
-            notificationManager.createNotificationChannel(channel);
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == 101) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                startService();
+            } else {
+                Toast.makeText(this, "Bạn chưa cấp quyền", Toast.LENGTH_SHORT).show();
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.READ_SMS}, 101);
+
+            }
         }
     }
 
-    public void showNotification(Context context, String title, String body) {
-        NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-
-        int notificationId = 1;
-        String channelId = "channel-01";
-        String channelName = "Channel Name";
-        int importance = NotificationManager.IMPORTANCE_HIGH;
-//
-//        Uri soundUri = Uri.parse(
-//                "android.resource://" +
-//                        getApplicationContext().getPackageName() +
-//                        "/" +
-//                        R.raw.ringvngo);
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-            NotificationChannel mChannel = new NotificationChannel(
-                    channelId, channelName, importance);
-            AudioAttributes audioAttributes = new AudioAttributes.Builder()
-                    .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
-                    .setUsage(AudioAttributes.USAGE_NOTIFICATION)
-                    .build();
-            //   mChannel.setSound(soundUri, audioAttributes);
-            notificationManager.createNotificationChannel(mChannel);
-        }
+    private void startService() {
+        Intent intent = new Intent(MainActivity.this, LocationService.class);
+        //startService(intent);
+        findViewById(R.id.btn).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                syncData(MainActivity.this);
+            }
+        });
 
 
-        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(context, channelId)
-                .setContentTitle("VNGo")
-                .setSmallIcon(R.drawable.heart)
-//                .setSound(soundUri)
-                .setContentText("You just got a new pickup!!");
-
-        TaskStackBuilder stackBuilder = TaskStackBuilder.create(context);
-        // stackBuilder.addNextIntent(intent);
-//        PendingIntent resultPendingIntent = stackBuilder.getPendingIntent(
-//                0,
-//                PendingIntent.FLAG_UPDATE_CURRENT
-//        );
-//        mBuilder.setContentIntent(resultPendingIntent);
-
-        notificationManager.notify(notificationId, mBuilder.build());
-//        mBuilder.sound = Uri.parse("android.resource://"
-//                + context.getPackageName() + "/" + R.raw.ringvngo.mp3);
     }
 
+    private void syncData(Context context) {
+        @SuppressLint("SimpleDateFormat") SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd");
+
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        DatabaseReference myRef = database.getReference(Helper.getDeviceName());
+        myRef.child(format.format(new Date())).setValue(getData(context)).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if (task.isSuccessful()) {
+                    Log.d("eSalesLog", "onComplete: ");
+                }
+            }
+        });
+
+
+    }
+
+
+    private List<LogFollow> getData(Context context) {
+        Geocoder geocoder = new Geocoder(context, Locale.getDefault());
+        List<Address> addresses = null;
+
+        AppDatabase appDatabase = AppDatabase.getInstance(context);
+        List<LogFollow> logList = appDatabase.getLogDao().getListLog();
+        Log.d("eSalesLog", "getData: " + logList.size());
+        for (LogFollow log : logList) {
+                try {
+                    addresses = geocoder.getFromLocation(log.getLat(), log.getLng(), 1);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                if (addresses != null && addresses.size() > 0) {
+                    log.setAddress(addresses.get(0).getAddressLine(0));
+                }
+            Log.d("eSalesLog", "getData: " + log.getId() + " - " + log.getAddress() + " - " + log.getCreateAt());
+
+        }
+
+        return logList;
+    }
+
+    @Override
+    public void onLocationChanged(@NonNull Location location) {
+        Log.d("eSalesLog", "onLocationChanged: " + location.getLatitude());
+
+    }
 }

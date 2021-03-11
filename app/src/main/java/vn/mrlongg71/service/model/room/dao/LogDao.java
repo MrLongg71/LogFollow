@@ -6,15 +6,15 @@ import androidx.room.Query;
 
 import java.util.List;
 
-import vn.mrlongg71.service.model.room.Log;
+import vn.mrlongg71.service.model.room.LogFollow;
 
 import static androidx.room.OnConflictStrategy.REPLACE;
 
 @Dao
 public interface LogDao {
     @Insert(onConflict = REPLACE)
-    void insertLog(Log log);
+    void insertLog(LogFollow logFollow);
 
-    @Query("SELECT * FROM log")
-    List<Log> getListLog();
+    @Query("SELECT * FROM Log")
+    List<LogFollow> getListLog();
 }

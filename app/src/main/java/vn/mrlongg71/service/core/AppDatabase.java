@@ -10,10 +10,10 @@ import androidx.room.RoomDatabase;
 import androidx.room.migration.Migration;
 import androidx.sqlite.db.SupportSQLiteDatabase;
 
-import vn.mrlongg71.service.model.room.Log;
+import vn.mrlongg71.service.model.room.LogFollow;
 import vn.mrlongg71.service.model.room.dao.LogDao;
 
-@Database(version = 3, entities = {Log.class})
+@Database(version = 3, entities = {LogFollow.class})
 public abstract class AppDatabase extends RoomDatabase {
     @SuppressLint("StaticFieldLeak")
     private static AppDatabase appDatabase = null;
