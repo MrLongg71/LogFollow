@@ -9,9 +9,9 @@ import java.util.Date;
 public class DateHelper {
     public static final String JsonDateStringFormat = "MM/dd/yyyy HH:mm:ss";
 
-    public static String getString(String format) {
+    public static String getString(Date date,String format) {
         @SuppressLint("SimpleDateFormat") SimpleDateFormat dfm = new SimpleDateFormat(format == null ? JsonDateStringFormat : format);
-        return dfm.format(new Date());
+        return dfm.format(date);
     }
 
     public static Date getInvalidDate() {

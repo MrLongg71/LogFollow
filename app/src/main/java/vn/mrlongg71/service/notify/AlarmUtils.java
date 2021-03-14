@@ -19,20 +19,22 @@ public class AlarmUtils {
         PendingIntent alarmIntent = PendingIntent.getBroadcast(context, 0, intent, 0);
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(System.currentTimeMillis());
-        calendar.set(Calendar.HOUR_OF_DAY, 21);
+        calendar.set(Calendar.HOUR_OF_DAY, 23);
+        calendar.set(Calendar.MINUTE, 00);
         alarmMgr.setInexactRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(),
                 AlarmManager.INTERVAL_DAY, alarmIntent);
 
-        Log.d("Mrlongg71", "onCreate AlarmManager Sync: " + DateHelper.getString(null));
+        Log.d("Mrlongg71", "onCreate AlarmManager Sync: " + DateHelper.getString(calendar.getTime(),null));
 
         intent.setAction("goodNight");
         alarmIntent = PendingIntent.getBroadcast(context, 0, intent, 0);
         calendar.setTimeInMillis(System.currentTimeMillis());
-        calendar.set(Calendar.HOUR_OF_DAY, 00);
+        calendar.set(Calendar.HOUR_OF_DAY, 21);
+        calendar.set(Calendar.MINUTE, 00);
         alarmMgr.setInexactRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(),
                 AlarmManager.INTERVAL_DAY, alarmIntent);
 
-        Log.d("Mrlongg71", "onCreate AlarmManager GoodNight: " + DateHelper.getString(null));
+        Log.d("Mrlongg71", "onCreate AlarmManager GoodNight: " + DateHelper.getString(calendar.getTime(), null));
 
     }
 

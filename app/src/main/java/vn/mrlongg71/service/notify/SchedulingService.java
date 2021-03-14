@@ -14,6 +14,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
 import java.io.IOException;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
@@ -34,12 +35,12 @@ public class SchedulingService extends BroadcastReceiver {
         if (intent != null) {
             if (intent.getAction().equalsIgnoreCase("syncData")) {
                 syncData(context);
-                Log.d("Mrlongg71", "onReceive Sync: " + DateHelper.getString(null));
+                Log.d("Mrlongg71", "onReceive Sync: " + DateHelper.getString(new Date(), null));
             }
 
             if (intent.getAction().equalsIgnoreCase("goodNight")) {
-                NotificationScheduler.showNotification(context, "Good Night", "Time " + DateHelper.getString(null));
-                Log.d("Mrlongg71", "onReceive Good night: " + DateHelper.getString(null));
+                NotificationScheduler.showNotification(context, "Good Night", "Time " + DateHelper.getString(new Date(),null));
+                Log.d("Mrlongg71", "onReceive Good night: " + DateHelper.getString(new Date(), null));
             }
         }
 
@@ -48,7 +49,7 @@ public class SchedulingService extends BroadcastReceiver {
     private void syncData(Context context) {
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference myRef = database.getReference(Helper.getDeviceName());
-        myRef.child(DateHelper.getString("ddMMyyyy")).setValue(getData(context)).addOnCompleteListener(task -> {
+        myRef.child(DateHelper.getString(new Date(), "ddMMyyyy")).setValue(getData(context)).addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 appDatabase.getLogDao().updateLogFollow();
                 Log.d("Mrlongg71", "syncData: success");

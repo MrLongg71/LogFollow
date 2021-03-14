@@ -21,6 +21,8 @@ import androidx.annotation.RequiresApi;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
 
+import java.util.Date;
+
 import vn.mrlongg71.service.core.AppDatabase;
 import vn.mrlongg71.service.core.helper.DateHelper;
 import vn.mrlongg71.service.model.database.LogFollow;
@@ -31,7 +33,9 @@ import static androidx.core.app.NotificationCompat.PRIORITY_MIN;
 
 public class LocationService extends Service implements LocationListener {
     private LocationManager locationManager;
-    AppDatabase appDatabase;
+    private AppDatabase appDatabase;
+    private static final long MIN_UPDATE_DISTANCE = 50;
+    private static final long MIN_UPDATE_TIME = 1000 * 60;
 
     @Override
     public void onCreate() {
@@ -48,7 +52,7 @@ public class LocationService extends Service implements LocationListener {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             return START_STICKY;
         }
-        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 10, 10, this);
+        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, MIN_UPDATE_TIME, MIN_UPDATE_DISTANCE, this);
 
 
         return START_STICKY;
@@ -100,11 +104,13 @@ public class LocationService extends Service implements LocationListener {
 
     @Override
     public void onLocationChanged(@NonNull Location location) {
-        Log.d("Mrlongg71", "onLocationChanged: ");
+        Log.d("Mrlongg71", "onLocationChanged: " + DateHelper.getString(new Date(), null));
         LogFollow logFollow = new LogFollow();
         logFollow.setLat(location.getLatitude());
         logFollow.setLng(location.getLongitude());
-        logFollow.setCreateAt(DateHelper.getString(null));
+        logFollow.setCreateAt(DateHelper.getString(new Date(), null));
         appDatabase.getLogDao().insertLog(logFollow);
     }
+
+
 }
